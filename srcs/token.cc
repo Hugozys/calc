@@ -7,16 +7,16 @@ std::ostream & operator<< (std::ostream & os, const PToken & ptoken){
    return os;
 }
 
-PToken ValueTokenAction(const char * payload){
+PToken ValueTokenAction(const char * payload, std::size_t pos){
     std::string pl {payload};
     PTokenFactory factory{};
     if (std::any_of(pl.begin(), pl.end(), [](char c){return c == '.';})){
-        return factory.CreatePTokenWithTypeAndValue(TokenType::FLOAT, payload);
+        return factory.CreatePTokenWithTypeAndValue(TokenType::FLOAT, payload, pos);
     }
-    return factory.CreatePTokenWithTypeAndValue(TokenType::INT, payload);
+    return factory.CreatePTokenWithTypeAndValue(TokenType::INT, payload, pos);
 }
 
-PToken OpTokenAction(const char * payload){
+PToken OpTokenAction(const char * payload, std::size_t pos){
     std::string pl {payload};
     PTokenFactory factory{};
     auto c = pl[0];
@@ -47,10 +47,10 @@ PToken OpTokenAction(const char * payload){
             type = TokenType::END;
             break;
     }
-    return factory.CreatePTokenWithType(type);
+    return factory.CreatePTokenWithType(type, pos);
 }
 
-PToken SpaceTokenAction(const char *){
+PToken SpaceTokenAction(const char *, std::size_t pos){
     PTokenFactory factory{};
-    return factory.CreatePTokenWithType(TokenType::WS);
+    return factory.CreatePTokenWithType(TokenType::WS, pos);
 }

@@ -25,20 +25,22 @@ class Token{
     public:
         TokenType Type() const;
         const char * Value() const;
+        int Pos() const;
         virtual ~Token(){}
     protected:
-        Token(TokenType type, const char * value):_type{type},_value(value){
+        Token(TokenType type, const char * value, int pos):_type{type},_value(value), _pos(pos){
         }
     private:
         TokenType _type;
         std::string _value;
+        int _pos;
 };
 
 std::ostream & operator<< (std::ostream & os, const Token & token);
 
 class OpToken final: public Token{
     public:
-        OpToken(TokenType type):Token{type, ""}{
+        OpToken(TokenType type, int pos):Token{type, "", pos}{
     }
         virtual ~OpToken(){}
 };
@@ -46,7 +48,7 @@ class OpToken final: public Token{
 
 class ValToken final: public Token{
     public:
-        ValToken(TokenType type, const char * value):Token{type, value}{
+        ValToken(TokenType type, const char * value, int pos):Token{type, value, pos}{
 
         }
         virtual ~ValToken(){}

@@ -16,7 +16,7 @@ class Dfa{
         void Reset();
         bool HasAcceptState() const;
         bool IsCurrentAccept() const;
-        PToken Accept();
+        PToken Accept(int pos);
     private:
         class State;
         class Builder;
@@ -73,15 +73,14 @@ class Dfa::Builder{
 
 class Dfa::State{
     public:
-        State(std::function<PToken(const char *)> action):
+        State(std::function<PToken(const char *, std::size_t)> action):
         _action(action), _table{} {}
 
         const std::unordered_map<char, State *> & Table() const{
             return _table;
         }
-        PToken Execute(const char * payload){
-
-            return _action(payload);
+        PToken Execute(const char * payload, std::size_t pos){
+            return _action(payload, pos);
         }
         friend Dfa::Builder & Dfa::Builder::AddStates();
         friend Dfa::Builder & Dfa::Builder::LinkStates();       
@@ -100,7 +99,7 @@ class Dfa::State{
             _table = std::move(rhs._table);
             return *this;
         }
-        std::function<PToken(const char *)> _action;
+        std::function<PToken(const char *, std::size_t)> _action;
         std::unordered_map<char, State *> _table;
 };
 

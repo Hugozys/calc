@@ -1,5 +1,9 @@
 1. Write Makefile (DONE)
 
-2. Write happy path test cases
+2. Write happy path test cases (DONE)
 
-3. Write wrong test cases
+3. Write wrong test cases (DONE)
+
+4. Read recursive descendent parsing in dragon book
+
+5. Implement recursive descendent and build AST

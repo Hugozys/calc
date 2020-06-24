@@ -25,9 +25,9 @@ bool Dfa::IsCurrentAccept() const{
     return _acceptStates.count(_currentState);
 }
 
-PToken Dfa::Accept(){
+PToken Dfa::Accept(int pos){
     assert(_passedAcceptState != nullptr && "The Dfa simulation never transitted to an accept state.");
-    auto token = _passedAcceptState->Execute(_passedAcceptStateStr.c_str());
+    auto token = _passedAcceptState->Execute(_passedAcceptStateStr.c_str(), pos);
     Reset();
     return token;
 }

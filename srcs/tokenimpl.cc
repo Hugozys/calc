@@ -8,6 +8,10 @@ const char * Token::Value() const{
     return _value.c_str();
 }
 
+int Token::Pos() const{
+    return _pos;
+}
+
 const char * ToString(TokenType type){
     switch(type){
         case TokenType::PLUS:

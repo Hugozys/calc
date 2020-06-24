@@ -8,6 +8,7 @@ void TokenGen::Reset(){
     _tail = 0;
     _lastAcceptTail = std::string::npos;
     _dfa->Reset();
+    _pstack.clear();
 }
 
 std::queue<PToken> TokenGen::Tokenize(const std::string & input){
@@ -29,5 +30,6 @@ std::queue<PToken> TokenGen::Tokenize(const std::string & input){
             }
         }
     }
+    _pvalidator.Validate(_pstack);
     return tokenList;
 }
