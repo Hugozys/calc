@@ -1,9 +1,11 @@
-1. Write Makefile (DONE)
+1. Write descendent recursive parser
 
-2. Write happy path test cases (DONE)
+2. Write Test Cases for parser
 
-3. Write wrong test cases (DONE)
+3. Write Printer Visitor 
 
-4. Read recursive descendent parsing in dragon book
+4. Write TypeCheck Visitor
 
-5. Implement recursive descendent and build AST
+5. Write Eval Visitor
+
+6. Wrap up

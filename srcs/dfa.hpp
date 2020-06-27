@@ -23,30 +23,8 @@ class Dfa{
         Dfa() = default;
         Dfa(const Dfa & rhs) = delete;
         Dfa & operator = (const Dfa & rhs) = delete;
-        Dfa(Dfa && rhs){
-            _move(rhs);
-        }
-        Dfa & operator =(Dfa && rhs){
-            if (&rhs == this){
-                return *this;
-            }
-            _move(rhs);
-            return *this;
-        }
-
-        void _move(Dfa & rhs){
-            _currentState = rhs._currentState;
-            rhs._currentState = nullptr;
-            _startState = rhs._startState;
-            rhs._startState = nullptr;
-            _passedAcceptState = rhs._passedAcceptState;
-            rhs._passedAcceptState = nullptr;
-            _passedAcceptStateStr = std::move(rhs._passedAcceptStateStr);
-            _buffer = std::move(_buffer);
-            _states = std::move(rhs._states);
-            _acceptStates = std::move(rhs._acceptStates);
-        }
-
+        Dfa(Dfa && rhs) = default;
+        Dfa & operator = (Dfa && rhs) = default;
         State * _currentState{nullptr};
         State * _startState{nullptr};
         State * _passedAcceptState{nullptr};
@@ -87,18 +65,8 @@ class Dfa::State{
     private:
         State(const State & rhs) = delete;
         State & operator =(const State & rhs) = delete;
-        State(State && rhs){
-            _action = std:: move(rhs._action);
-            _table = std::move(rhs._table);
-        }
-        State & operator =(State && rhs){
-            if (&rhs == this){
-                return *this;
-            }
-            _action = std::move(rhs._action);
-            _table = std::move(rhs._table);
-            return *this;
-        }
+        State(State && rhs) = default;
+        State & operator = (State && rhs) = default;
         std::function<PToken(const char *, std::size_t)> _action;
         std::unordered_map<char, State *> _table;
 };
