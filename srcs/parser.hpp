@@ -19,7 +19,25 @@ class Parser{
         class DivExp;
         class ExpoExp;
         class IntExp;
-        class FloatExp;    
+        class FloatExp;
+        class ParserInternal;
+        class ExpFactory;    
+};
+
+class Parser::ParserInternal{
+    public:
+        TokenType CurrentType();
+        PToken Current();
+        bool Eat(TokenType type);
+        std::shared_ptr<Exp> ParseS();
+        std::shared_ptr<Exp> ParseE();
+        std::shared_ptr<Exp> ParseT();
+        std::shared_ptr<Exp> ParseF();
+        std::shared_ptr<Exp> ParseN();
+        std::shared_ptr<Exp> ParseK();
+    private:
+        std::queue<PToken> _tokenQueue;
+
 };
 
 class Parser::SyntaxTree{
@@ -32,7 +50,14 @@ class Parser::SyntaxTree{
 };
 
 class Parser::Exp{
-    virtual void Accept(Visitor & visitor) const = 0;
+    public:
+        std::size_t Pos() const{
+            return _pos;
+        }
+        virtual void Accept(Visitor & visitor) const = 0;
+        Exp(std::size_t pos):_pos{pos}{}
+    private:
+        std::size_t _pos;
 };
 
 class Parser::OpExp: public Parser::Exp{
@@ -41,7 +66,8 @@ class Parser::OpExp: public Parser::Exp{
         ConstIterator CBegin() const;
         ConstIterator CEnd() const;
     protected:
-        OpExp(std::initializer_list<std::shared_ptr<Exp>> list):_children{list}{}
+        OpExp(std::size_t pos, std::initializer_list<std::shared_ptr<Exp>> list):Exp{pos}, _children{list}{}
+        OpExp() = default;
     private:
         using ExpIt = std::vector<std::shared_ptr<Exp>>::iterator;
         using ConstExpIt = std::vector<std::shared_ptr<Exp>>::const_iterator;
@@ -62,34 +88,53 @@ class Parser::OpExp: public Parser::Exp{
 };
 
 class Parser::PlusExp: public Parser::OpExp{
-    virtual void Accept(Visitor & visitor) const;
+    public:
+        PlusExp(std::size_t pos, std::initializer_list<std::shared_ptr<Exp>> list):OpExp{pos, list}{}
+        virtual void Accept(Visitor & visitor) const;
 };
 
 class Parser::MinusExp: public Parser::OpExp{
-    virtual void Accept(Visitor & visitor) const;
+    public:
+        MinusExp(std::size_t pos, std::initializer_list<std::shared_ptr<Exp>> list):OpExp{pos, list}{}
+        virtual void Accept(Visitor & visitor) const;
 };
 
 class Parser::MulExp: public Parser::OpExp{
-    virtual void Accept(Visitor & visitor) const;
+    public:
+        MulExp(std::size_t pos, std::initializer_list<std::shared_ptr<Exp>> list):OpExp{pos, list}{}
+        virtual void Accept(Visitor & visitor) const;
 };
 
 class Parser::DivExp: public Parser::OpExp{
-    virtual void Accept(Visitor & visitor) const;
+    public:
+        DivExp(std::size_t pos, std::initializer_list<std::shared_ptr<Exp>> list):OpExp{pos, list}{}
+        virtual void Accept(Visitor & visitor) const;
 };
 
 class Parser::ExpoExp: public Parser::OpExp{
-    virtual void Accept(Visitor & visitor) const;
+    public:
+        ExpoExp(std::size_t pos, std::initializer_list<std::shared_ptr<Exp>> list):OpExp{pos, list}{}
+        virtual void Accept(Visitor & visitor) const;
 };
 
 
 class Parser::IntExp: public Parser::Exp{
-    virtual void Accept(Visitor & visitor) const;
+    public:
+        IntExp(std::size_t pos, const std::string & intstr):Exp{pos},_value{intstr}{}
+        virtual void Accept(Visitor & visitor) const;
+    
+    private:
+        std::string _value;
 };
 
 
 class Parser::FloatExp: public Parser::Exp{
+    public:
+        FloatExp(std::size_t pos, const std::string & floatstr):Exp{pos},_value{floatstr}{}
     virtual void Accept(Visitor & visitor) const;
+    
+    private:
+        std::string _value;
 };
-
 
 #endif

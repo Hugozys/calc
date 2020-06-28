@@ -1,10 +1,10 @@
-1. Write descendent recursive parser
-
-2. Write Test Cases for parser
+1. Write descendent recursive parser (Done)
 
 3. Write Printer Visitor 
 
 4. Write TypeCheck Visitor
+
+2. Write Test Cases for parser
 
 5. Write Eval Visitor
 
