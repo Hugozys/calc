@@ -1,7 +1,7 @@
 CPP := g++
 DEPDIR := .deps
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
-CPPFLAGS := -std=gnu++17 -Wall -Werror -pedantic -I./srcs
+CPPFLAGS := -std=gnu++17 -ggdb3 -Wall -Werror -pedantic -I./srcs
 COMPILE.cc = $(CPP) $(DEPFLAGS) $(CPPFLAGS) -c
 SRCS = $(wildcard ./**/*.cc)
 MAIN = ./srcs/main.o ./tests/test.o

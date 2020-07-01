@@ -3,7 +3,13 @@
 #include "exception.hpp"
 #include "parser.hpp"
 #include "token.hpp"
-#include "visitor.hpp"
+
+void Parser::Parse(const std::queue<PToken> & tokenPool){
+    ParserInternal internal{tokenPool};
+    SyntaxTree tree{internal.ParseS()};
+    PrintTreeVisitor printVisitor{"test.txt"};
+    tree.Root().Accept(printVisitor);
+}
 
 PToken Parser::ParserInternal::Current(){
      while (_tokenQueue.front().Type() == TokenType::WS){
@@ -41,10 +47,18 @@ std::shared_ptr<Parser::Exp> Parser::ParserInternal::ParseE(){
             break;
         }
         else if (lookAhead == TokenType::PLUS){
-            e = std::shared_ptr<PlusExp>{new PlusExp{currentToken.Pos(), {e, ParseT()}}};
+            auto lhs = e;
+            auto rhs = ParseT();
+            e = std::shared_ptr<PlusExp>{new PlusExp{currentToken.Pos(), {lhs, rhs}}};
+            rhs->SetParent(e.get());
+            lhs->SetParent(e.get());
         }
         else if (lookAhead == TokenType::MINUS){
+            auto lhs = e;
+            auto rhs = ParseT();
             e = std::shared_ptr<MinusExp>{new MinusExp{currentToken.Pos(), {e, ParseT()}}};
+            rhs->SetParent(e.get());
+            lhs->SetParent(e.get());
         }
         else{
             // TODO: throw exception
@@ -63,10 +77,18 @@ std::shared_ptr<Parser::Exp> Parser::ParserInternal::ParseT(){
             break;
         }
         else if (lookAhead == TokenType::MUL){
-            e = std::shared_ptr<MulExp>{new MulExp{currentToken.Pos(), {e, ParseF()}}};
+            auto lhs = e;
+            auto rhs = ParseF();
+            e = std::shared_ptr<MulExp>{new MulExp{currentToken.Pos(), {lhs, rhs}}};
+            lhs->SetParent(e.get());
+            rhs->SetParent(e.get());
         }
         else if (lookAhead == TokenType::DIV){
-            e = std::shared_ptr<DivExp>{new DivExp{currentToken.Pos(), {e, ParseF()}}};
+            auto lhs = e;
+            auto rhs = ParseF();
+            e = std::shared_ptr<DivExp>{new DivExp{currentToken.Pos(), {lhs, rhs}}};
+            lhs->SetParent(e.get());
+            rhs->SetParent(e.get());
         }
         else{
             // TODO: 
@@ -78,11 +100,16 @@ std::shared_ptr<Parser::Exp> Parser::ParserInternal::ParseT(){
 
 std::shared_ptr<Parser::Exp> Parser::ParserInternal::ParseF(){
     auto e = ParseN();
-    auto pos = Current().Pos();
-    // refactor this
-    while (Eat(TokenType::EXP)){
-        e = std::shared_ptr<ExpoExp>{new ExpoExp{pos, {e, ParseN()}}};
-        pos = Current().Pos();
+    while (true){
+        auto currentToken = Current();
+        if (!Eat(TokenType::EXP)){
+            break;
+        }
+        auto lhs = e;
+        auto rhs = ParseN();
+        e = std::shared_ptr<ExpoExp>{new ExpoExp{currentToken.Pos(), {lhs, rhs}}};
+        lhs->SetParent(e.get());
+        rhs->SetParent(e.get());
     }
     return e;
 }
@@ -90,10 +117,16 @@ std::shared_ptr<Parser::Exp> Parser::ParserInternal::ParseF(){
 std::shared_ptr<Parser::Exp> Parser::ParserInternal::ParseN(){
     auto currentToken = Current();
     if (Eat(TokenType::PLUS)){
-         return std::shared_ptr<PlusExp>{new PlusExp{currentToken.Pos(), {ParseK()}}};
+         auto lhs = ParseK();
+         auto e = std::shared_ptr<PlusExp>{new PlusExp{currentToken.Pos(), {lhs}}};
+         lhs->SetParent(e.get());
+         return e;
     }
     if (Eat(TokenType::MINUS)){
-        return std::shared_ptr<MinusExp>{new MinusExp{currentToken.Pos(), {ParseK()}}};
+        auto lhs = ParseK();
+        auto e = std::shared_ptr<MinusExp>{new MinusExp{currentToken.Pos(), {lhs}}};
+        lhs->SetParent(e.get());
+        return e;
     }
     return ParseK();
 }
@@ -117,32 +150,32 @@ std::shared_ptr<Parser::Exp> Parser::ParserInternal::ParseK(){
 }
 
 void Parser::PlusExp::Accept(Visitor & visitor) const{
-
+    visitor.VisitPlusExp(*this);
 }
 
 void Parser::MinusExp::Accept(Visitor & visitor) const{
-
+    visitor.VisitMinusExp(*this);
 }
 
 
 void Parser::MulExp::Accept(Visitor & visitor) const{
-
+    visitor.VisitMulExp(*this);
 }
 
 void Parser::DivExp::Accept(Visitor & visitor) const{
-
+    visitor.VisitDivExp(*this);
 }
 
 void Parser::ExpoExp::Accept(Visitor & visitor) const{
-
+    visitor.VisitExpoExp(*this);
 }
 
 void Parser::IntExp::Accept(Visitor & visitor) const{
-
+    visitor.VisitIntExp(*this);
 }
 
 void Parser::FloatExp::Accept(Visitor & visitor) const{
-
+    visitor.VisitFloatExp(*this);
 }
 
 Parser::OpExp::ConstIterator Parser::OpExp::CBegin() const{

@@ -3,24 +3,23 @@
 #include "exception.hpp"
 #include "tokengen.hpp"
 #include "token.hpp"
+#include "parser.hpp"
 
 int main(void){
     TokenGen tokenGenerator{};
+    Parser parser{};
     while(1){
-        std::string input{};
-        std::getline(std::cin, input);
+        std::string input{"-(1 + 2)^4 x 3 - 5 + 6.7"};
+        //std::getline(std::cin, input);
         input.push_back('\n');
         std::queue<PToken> list{};
         try{
-            list = tokenGenerator.Tokenize(input);
+            parser.Parse(tokenGenerator.Tokenize(input));
+            break;
         }
         catch(const InvalidToken & e){
             std::cout<<e.what()<<'\n';
             continue;
-        }
-        while (!list.empty()){
-            std::cout<<list.front()<<" ";
-            list.pop();
         }
     }
     return 0;
