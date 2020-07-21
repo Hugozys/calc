@@ -29,21 +29,23 @@
 
 ## Production Rules
 
-$S \rightarrow E \vert end$
+```text
+S -> E | END
 
-$E \rightarrow +TE' \vert -TE' \vert \epsilon$
+E -> +TE' | -TE' | epsilon
 
-$T \rightarrow FT'$
+T -> FT'
 
-$T' \rightarrow \times FT' \vert /FT' \vert \epsilon$
+T' -> xFT' |  /FT' |  epsilon
 
-$F \rightarrow NF'$
+F -> NF'
 
-$F' \rightarrow \land F' \vert \epsilon$
+F' -> ^ F' |  epsilon
 
-$N \rightarrow +N \vert -N \vert K$
+N -> +N |  -N |  K
 
-$K \rightarrow (E) \vert int \vert float$
+K -> (E) |  INT |  FLOAT
+```
 
 ## Design Patterns In Use
 
