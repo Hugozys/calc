@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <string>
+#include "exception.hpp"
 #include "token.hpp"
 
 std::ostream & operator<< (std::ostream & os, const PToken & ptoken){
@@ -46,6 +47,8 @@ PToken OpTokenAction(const char * payload, std::size_t pos){
         case '\n':
             type = TokenType::END;
             break;
+        default:
+            throw UnknownChar{c};
     }
     return factory.CreatePTokenWithType(type, pos);
 }

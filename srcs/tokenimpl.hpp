@@ -14,7 +14,7 @@ enum class TokenType{
     MUL,
     DIV,
     EXP,
-    WS
+    WS,
 };
 
 bool IsValueType(TokenType type);

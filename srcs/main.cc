@@ -8,19 +8,23 @@
 int main(void){
     TokenGen tokenGenerator{};
     Parser parser{};
+    std::cout<<"calc > ";
     while(1){
-        std::string input{"-(1 + 2)^4 x 3 - 5 + 6.7"};
-        //std::getline(std::cin, input);
+        std::string input{};
+        std::getline(std::cin, input);
+        if (input == "quit"){
+            return EXIT_SUCCESS;
+        }
         input.push_back('\n');
         std::queue<PToken> list{};
         try{
-            parser.Parse(tokenGenerator.Tokenize(input));
-            break;
+            auto result = parser.Parse(tokenGenerator.Tokenize(input));
+            std::cout<<result<<'\n';
         }
-        catch(const InvalidToken & e){
+        catch(const std::exception & e){
             std::cout<<e.what()<<'\n';
-            continue;
         }
+        std::cout<<"calc > ";
     }
     return 0;
 }

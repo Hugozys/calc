@@ -1,5 +1,7 @@
 *.o
 .*
+**/test_*
 main
-test
+testToken
+testParser
 !.gitignore

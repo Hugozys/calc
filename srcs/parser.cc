@@ -4,11 +4,16 @@
 #include "parser.hpp"
 #include "token.hpp"
 
-void Parser::Parse(const std::queue<PToken> & tokenPool){
+double Parser::Parse(const std::queue<PToken> & tokenPool, bool debugMode, const char * filename){
     ParserInternal internal{tokenPool};
     SyntaxTree tree{internal.ParseS()};
-    PrintTreeVisitor printVisitor{"test.txt"};
-    tree.Root().Accept(printVisitor);
+    if (debugMode){
+        PrintTreeVisitor printVisitor{filename};
+        tree.Root().Accept(printVisitor);
+    }
+    EvalVisitor evalVisitor{};
+    tree.Root().Accept(evalVisitor);
+    return evalVisitor.Value();
 }
 
 PToken Parser::ParserInternal::Current(){
@@ -33,7 +38,8 @@ bool Parser::ParserInternal::Eat(TokenType type){
 std::shared_ptr<Parser::Exp> Parser::ParserInternal::ParseS(){
     auto e = ParseE();
     if (!Eat(TokenType::END)){
-        throw std::exception();
+        auto currentToken = Current();
+        throw ParserError{{TokenType::END}, currentToken.Type(), currentToken.Pos()};
     }
     return e;
 }
@@ -56,13 +62,9 @@ std::shared_ptr<Parser::Exp> Parser::ParserInternal::ParseE(){
         else if (lookAhead == TokenType::MINUS){
             auto lhs = e;
             auto rhs = ParseT();
-            e = std::shared_ptr<MinusExp>{new MinusExp{currentToken.Pos(), {e, ParseT()}}};
+            e = std::shared_ptr<MinusExp>{new MinusExp{currentToken.Pos(), {e, rhs}}};
             rhs->SetParent(e.get());
             lhs->SetParent(e.get());
-        }
-        else{
-            // TODO: throw exception
-            throw std::exception{};
         }
     }
     return e;
@@ -90,10 +92,6 @@ std::shared_ptr<Parser::Exp> Parser::ParserInternal::ParseT(){
             lhs->SetParent(e.get());
             rhs->SetParent(e.get());
         }
-        else{
-            // TODO: 
-            throw std::exception{};
-        }
     }
     return e;
 }
@@ -117,13 +115,13 @@ std::shared_ptr<Parser::Exp> Parser::ParserInternal::ParseF(){
 std::shared_ptr<Parser::Exp> Parser::ParserInternal::ParseN(){
     auto currentToken = Current();
     if (Eat(TokenType::PLUS)){
-         auto lhs = ParseK();
+         auto lhs = ParseN();
          auto e = std::shared_ptr<PlusExp>{new PlusExp{currentToken.Pos(), {lhs}}};
          lhs->SetParent(e.get());
          return e;
     }
     if (Eat(TokenType::MINUS)){
-        auto lhs = ParseK();
+        auto lhs = ParseN();
         auto e = std::shared_ptr<MinusExp>{new MinusExp{currentToken.Pos(), {lhs}}};
         lhs->SetParent(e.get());
         return e;
@@ -136,7 +134,8 @@ std::shared_ptr<Parser::Exp> Parser::ParserInternal::ParseK(){
     if (Eat(TokenType::LPARA)){
         auto e = ParseE();
         if (!Eat(TokenType::RPARA)){
-            throw std::exception();
+            auto currToken = Current();
+            throw ParserError{{TokenType::RPARA}, currToken.Type(), currToken.Pos()};
         }
         return e;
     }
@@ -146,7 +145,7 @@ std::shared_ptr<Parser::Exp> Parser::ParserInternal::ParseK(){
     if (Eat(TokenType::FLOAT)){
         return std::make_shared<FloatExp>(currentToken.Pos(), currentToken.Value());
     }
-    throw std::exception{};
+    throw ParserError{{TokenType::LPARA, TokenType::INT, TokenType::FLOAT}, currentToken.Type(), currentToken.Pos()};
 }
 
 void Parser::PlusExp::Accept(Visitor & visitor) const{
@@ -185,4 +184,3 @@ Parser::OpExp::ConstIterator Parser::OpExp::CBegin() const{
 Parser::OpExp::ConstIterator Parser::OpExp::CEnd() const{
     return ConstIterator{_children.cend()};
 }
-

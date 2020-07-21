@@ -1,5 +1,6 @@
 #ifndef _PARSER_HPP__
 #define _PARSER_HPP__
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <queue>
@@ -16,7 +17,7 @@ enum class ExpType{
 class Parser{
     public:
         class SyntaxTree;
-        void Parse(const std::queue<PToken> & tokenPool);
+        double Parse(const std::queue<PToken> & tokenPool, bool debugMode = false, const char * filename = nullptr);
     private:
         class Exp;
         class OpExp;
@@ -101,15 +102,30 @@ void Parser::PrintTreeVisitor::printOpExp(const char * label, const T & exp){
      }
 }
 
-
+class Parser::EvalVisitor: public Visitor{
+    public:
+        EvalVisitor():_value{}, _evalMap{}{}
+        double Value() const{return _value;}
+        virtual void VisitPlusExp(const PlusExp & exp);
+        virtual void VisitMinusExp(const MinusExp & exp);
+        virtual void VisitMulExp(const MulExp & exp);
+        virtual void VisitDivExp(const DivExp & exp);
+        virtual void VisitExpoExp(const ExpoExp & exp);
+        virtual void VisitIntExp(const IntExp & exp);
+        virtual void VisitFloatExp(const FloatExp & exp);
+    private:
+        double _value;
+        std::unordered_map<const Exp *, double> _evalMap;
+        bool IsZero(double num) const;
+};
 
 class Parser::SyntaxTree{
     public:
-    const Exp & Root() const{
-        return *_rootExp;
-    }
-    std::shared_ptr<Exp>  _rootExp;
-    SyntaxTree(std::shared_ptr<Exp> root):_rootExp{root}{} 
+        const Exp & Root() const{
+            return *_rootExp;
+        }
+        std::shared_ptr<Exp>  _rootExp;
+        SyntaxTree(std::shared_ptr<Exp> root):_rootExp{root}{} 
 };
 
 class Parser::Exp{
@@ -123,7 +139,7 @@ class Parser::Exp{
         void SetParent(const Exp * parent){
             _parent = parent;
         }
-
+        virtual std::size_t GetChildrenNum() const{ return 0;}
         const Exp * GetParent() const{
             return _parent;
         }
@@ -145,6 +161,9 @@ class Parser::OpExp: public Exp{
         ConstIterator CBegin() const;
         ConstIterator CEnd() const;
         virtual ~OpExp() = default;
+        virtual std::size_t GetChildrenNum() const override{
+            return _children.size();
+        }
     protected:
         OpExp(std::size_t pos, std::initializer_list<std::shared_ptr<Exp>> list):Exp{ExpType::OP, pos}, _children{list}{}
         OpExp() = default;
