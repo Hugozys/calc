@@ -1,8 +1,8 @@
-*.o
+**/*.o
 .*
 **/test_*
 main
 testToken
 testParser
 !.gitignore
-!.github/
+!.github/**/*

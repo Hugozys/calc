@@ -79,6 +79,7 @@ int main(void){
         if(!approximatelyEqualAbsRel(pair.second, result, 1e-12, 1e-5)){
             std::cout<<"FAILED CASE "<<i<<": ";
             std::cout<<"Input string: "<<pair.first<< ", expected: "<<pair.second<< ", but get: "<<result<<std::endl;
+            std::exit(1);
         }       
         std::cout<< "PASSED CASE "<<i<<"\n";
         ++i;
