@@ -1,0 +1,14 @@
+name: calc-ci
+on: [push, pull_request]
+jobs:
+  build_calc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: |
+          make
+      - name: Test Token
+        run: ./testToken
+      - name: Test Parser
+        run: ./testParser
