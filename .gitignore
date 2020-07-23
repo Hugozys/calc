@@ -5,3 +5,4 @@ main
 testToken
 testParser
 !.gitignore
+!.github/
