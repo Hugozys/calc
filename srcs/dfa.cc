@@ -13,7 +13,7 @@ Dfa::State Dfa::AddState(Dfa::Action action, bool accepting){
 void Dfa::LinkStates(Dfa::State from, char input, Dfa::State to){
     assert(from < _states.size());
     assert(to < _states.size());
-    _states[from].edges[(unsigned) input] = to;
+    _states[from].edges[(unsigned char) input] = to;
 }
 
 void DfaSimulator::Reset(){
