@@ -73,7 +73,6 @@ int main(void){
         std::stringstream ss;
         ss << "debug/test_"<<i;
         auto str = ss.str();
-        tokenGen.Reset();
         auto tokenList{tokenGen.Tokenize(input)};
         auto result = sut.Parse(tokenList, true, str.c_str());
         if(!approximatelyEqualAbsRel(pair.second, result, 1e-12, 1e-5)){
@@ -88,7 +87,6 @@ int main(void){
     for (const auto & str: parserErrorTestSuite){
         auto input{ str };
         input.push_back('\n');
-        tokenGen.Reset();
         auto tokenList{tokenGen.Tokenize(input)};
         try{
             sut.Parse(tokenList);

@@ -13,8 +13,6 @@
 class Dfa{
     public:
         typedef size_t State;
-        static constexpr State InvalidState = -1;
-        static constexpr State StartState = 0;
         typedef std::function<PToken(const char *, std::size_t)> Action;
 
         State AddState(Action action, bool accepting);
@@ -29,33 +27,20 @@ class Dfa{
         bool IsAccepting(State s) const{
             return _states[s].accepting;
         }
+        State Begin() const {
+            return 0;
+        }
+        State End() const {
+            return InvalidState;
+        }
     private:
+        static constexpr State InvalidState = -1;
         struct StateImpl{
             std::array<State, UCHAR_MAX> edges;
             Action action;
             bool accepting;
         };
         std::vector<StateImpl> _states;
-};
-
-class DfaSimulator{
-    public:
-        DfaSimulator(const Dfa & dfa) : _dfa(dfa) {}
-        bool Move(char c);
-        void Reset();
-        bool HasAcceptState() const{
-            return _passedAcceptState != Dfa::InvalidState;
-        }
-        bool IsCurrentAccept() const{
-            return _dfa.IsAccepting(_currentState);
-        }
-        PToken Accept(int pos);
-    private:
-        Dfa::State _passedAcceptState{Dfa::InvalidState};
-        Dfa::State _currentState{Dfa::InvalidState};
-        size_t _passedAcceptStateStrLen;
-        std::string _buffer;
-        const Dfa & _dfa;
 };
 
 #endif

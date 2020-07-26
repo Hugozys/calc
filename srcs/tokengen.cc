@@ -39,35 +39,41 @@ std::unique_ptr<Dfa> BuildDfa(){
 
 }  // namespace
 
-TokenGen::TokenGen() : _dfa(BuildDfa()), _dfa_sim(*_dfa.get()) {}
-
-void TokenGen::Reset(){
-    _head = 0;
-    _tail = 0;
-    _lastAcceptTail = std::string::npos;
-    _dfa_sim.Reset();
-    _pstack.clear();
-}
+TokenGen::TokenGen() : _dfa(BuildDfa()) {}
 
 std::queue<PToken> TokenGen::Tokenize(const std::string & input){
-    Reset();
     std::queue<PToken> tokenList{};
-    while (_head != input.size()){
-        if (_tail == input.size()){
-            tokenList.push(_acceptOrThrow(input));
-        }
-        else{ 
-            if(_dfa_sim.Move(input[_tail])){
-                if (_dfa_sim.IsCurrentAccept()){
-                    _lastAcceptTail = _tail;
+    ParaValidator pvalidator;
+    std::vector<std::size_t> pstack;
+    Dfa::State current = _dfa->Begin(), last_accept = _dfa->End();
+    size_t head = 0, tail = 0, token_len = 0;
+
+    while (head != input.size()){
+        if (tail < input.size()){
+            current = _dfa->GetLink(current, input[tail]);
+            if (current != _dfa->End()){
+                ++tail;
+                if (_dfa->IsAccepting(current)){
+                    last_accept = current;
+                    token_len = tail - head;
                 }
-                ++_tail;
-            }
-            else{
-                tokenList.push(_acceptOrThrow(input));
+                continue;
             }
         }
+        std::string token_str = input.substr(head, token_len);
+        if (last_accept == _dfa->End()){
+            // No accept state means an error.
+            throw InvalidToken(head, token_str);
+        }
+        auto action = _dfa->GetAction(last_accept);
+        PToken ptoken = action(token_str.c_str(), head);
+        tail = head += token_len;
+        token_len = 0;
+        current = _dfa->Begin();
+        last_accept = _dfa->End();
+        pvalidator.Validate(ptoken, pstack);
+        tokenList.push(ptoken);
     }
-    _pvalidator.Validate(_pstack);
+    pvalidator.Validate(pstack);
     return tokenList;
 }

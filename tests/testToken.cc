@@ -63,7 +63,6 @@ int main(void){
     TokenGen sut{};
     int i = 1;
     for(const auto & pair : correct_test_suite){
-        sut.Reset();
         auto tokenList{sut.Tokenize(pair.first)};
         auto result{print(tokenList)};
         assertString(result, pair); 
@@ -73,7 +72,6 @@ int main(void){
 
     std::cout<<std::string(10, '=')<<"Test Error Cases"<<std::string(10, '=')<<'\n';
     for (const auto & pair: error_test_suite){
-        sut.Reset();
         try{
             sut.Tokenize(pair.first);
         }
