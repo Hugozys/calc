@@ -1,9 +1,11 @@
 #ifndef _TOKENGEN__HPP_
 #define _TOKENGEN__HPP_
+
 #include <exception>
 #include <queue>
 #include <string>
 #include <vector>
+
 #include "dfa.hpp"
 #include "exception.hpp"
 #include "paraValidator.hpp"
@@ -11,11 +13,12 @@
 
 class TokenGen{
     public:
-        TokenGen():_dfa(Dfa::BuildDfa()){}
+        TokenGen();
         std::queue<PToken> Tokenize(const std::string & input);
         void Reset();
     private:
         std::unique_ptr<Dfa> _dfa;
+        DfaSimulator _dfa_sim;
         ParaValidator _pvalidator;
         std::vector<std::size_t> _pstack;
         int _paraNum{0};
@@ -24,8 +27,8 @@ class TokenGen{
         std::size_t _lastAcceptTail{std::string::npos};
 
         PToken _acceptOrThrow(const std::string & input){
-            if (_dfa->HasAcceptState()){
-                auto ptoken{_dfa->Accept(_head)};
+            if (_dfa_sim.HasAcceptState()){
+                auto ptoken{_dfa_sim.Accept(_head)};
                 _head = _lastAcceptTail + 1;
                 _tail = _head;
                 _lastAcceptTail = std::string::npos;
