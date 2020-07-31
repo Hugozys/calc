@@ -1,9 +1,8 @@
-#include "parser.hpp"
-
 #include <cassert>
 #include <memory>
 
 #include "exception.hpp"
+#include "parser.hpp"
 #include "token.hpp"
 
 double Parser::Parse(const std::queue<PToken>& tokenPool, bool debugMode,
@@ -96,16 +95,11 @@ std::shared_ptr<Parser::Exp> Parser::ParserInternal::ParseT() {
 
 std::shared_ptr<Parser::Exp> Parser::ParserInternal::ParseF() {
   auto e = ParseN();
-  while (true) {
-    auto currentToken = Current();
-    if (!Eat(TokenType::EXP)) {
-      break;
-    }
+  auto currentToken = Current();
+  if (Eat(TokenType::EXP)) {
     auto lhs = e;
-    auto rhs = ParseN();
+    auto rhs = ParseF();
     e = std::shared_ptr<ExpoExp>{new ExpoExp{currentToken.Pos(), {lhs, rhs}}};
-    lhs->SetParent(e.get());
-    rhs->SetParent(e.get());
   }
   return e;
 }

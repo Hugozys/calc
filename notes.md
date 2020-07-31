@@ -38,9 +38,7 @@ T -> FT'
 
 T' -> xFT' |  /FT' |  epsilon
 
-F -> NF'
-
-F' -> ^ F' |  epsilon
+F -> N ^ F | N
 
 N -> +N |  -N |  K
 
