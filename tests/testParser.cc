@@ -7,9 +7,9 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "exception.hpp"
-#include "parser.hpp"
-#include "tokengen.hpp"
+#include "srcs/exception.hpp"
+#include "srcs/parser.hpp"
+#include "srcs/tokengen.hpp"
 
 using fruit::Injector;
 
@@ -73,7 +73,7 @@ int main(void) {
     auto input{pair.first};
     input.push_back('\n');
     std::stringstream ss;
-    ss << "debug/test_" << i << ".dot";
+    ss << "./test_" << i << ".dot";
     auto str = ss.str();
     auto tokenList{tokenGen.Tokenize(input)};
     auto result = sut.Parse(tokenList, true, str.c_str());

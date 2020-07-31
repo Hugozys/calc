@@ -5,3 +5,5 @@ main
 testToken
 testParser
 !.gitignore
+build/
+bin/*
