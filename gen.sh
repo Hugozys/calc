@@ -1,5 +1,4 @@
 #!/bin/bash
 file=$(basename "$1")
-echo $file
-dot $1 -Tpng -o $file.png
-eog $file.png 
+base=$(basename -s .dot "$1")
+dot $1 -Tpng -o $base.png

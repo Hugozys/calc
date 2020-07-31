@@ -1,0 +1,14 @@
+digraph G{
+	rankdir=LR;
+	node [shape = doublecircle]; LR_1 LR_3 LR_4 LR_5;
+	node [shape = circle];
+	init [label="", shape=point]
+	init -> LR_0 [style= "solid"]
+	LR_0 -> LR_1 [label = "[0-9]"]
+	LR_0 -> LR_4 [label = "[tab, space]"]
+	LR_0 -> LR_5 [label = "+, -, x, /, ^, \\n]"]
+	LR_1 -> LR_2 [label = "."]
+	LR_2 -> LR_3 [label = "[0-9]"]
+	LR_1 -> LR_1 [label = "[0-9]"]
+	LR_3 -> LR_3 [label = "[0-9]"]
+}

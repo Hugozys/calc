@@ -1,74 +1,42 @@
-#ifndef _DFA_HPP__
-#define _DFA_HPP__
+#ifndef SRCS_DFA_HPP_
+#define SRCS_DFA_HPP_
 #include <cassert>
 #include <functional>
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <string>
-#include <string_view>
+#include <utility>
+
 #include "token.hpp"
+namespace dfa {
+class Dfa {
+ public:
+  using State = std::size_t;
+  using Action = std::function<PToken(const char*, std::size_t)>;
+  static constexpr std::size_t InvalidState = -1;
+  class DfaBuilder;
+  Action GetStateAction(State state) const;
+  State GetStartState() const;
+  bool IsAccept(State state) const;
+  State GetNextState(State state, char c) const;
+  Dfa() = delete;
+  Dfa(Dfa&& rhs) = default;
+  Dfa& operator=(Dfa&& rhs) = default;
 
-class Dfa{
-    public:
-        static std::unique_ptr<Dfa> BuildDfa();
-        bool Move(char c);
-        void Reset();
-        bool HasAcceptState() const;
-        bool IsCurrentAccept() const;
-        PToken Accept(int pos);
-    private:
-        class State;
-        class Builder;
-        Dfa() = default;
-        Dfa(const Dfa & rhs) = delete;
-        Dfa & operator = (const Dfa & rhs) = delete;
-        Dfa(Dfa && rhs) = default;
-        Dfa & operator = (Dfa && rhs) = default;
-        State * _currentState{nullptr};
-        State * _startState{nullptr};
-        State * _passedAcceptState{nullptr};
-        std::string _passedAcceptStateStr;
-        std::string _buffer;
-        std::unordered_map<int,std::unique_ptr<State>> _states;     
-        std::unordered_set<State *> _acceptStates;
+ private:
+  Dfa(State startState, std::unordered_set<State>& states,
+      std::unordered_map<State, std::unordered_map<char, State>>& transitTable,
+      std::unordered_map<State, Action>& actionMap)
+      : _startState{startState},
+        _states{std::move(states)},
+        _transitTable{std::move(transitTable)},
+        _actionMap{std::move(actionMap)} {}
+
+  State _startState{};
+  std::unordered_set<State> _states;
+  std::unordered_map<State, std::unordered_map<char, State>> _transitTable;
+  std::unordered_map<State, Action> _actionMap;
 };
-
-class Dfa::Builder{
-    public:
-        Builder() = default;
-        Builder & AddStates();
-        Builder & LinkStates();
-        Builder & SetAcceptStates();
-        Builder & SetStartState();
-        std::unique_ptr<Dfa> Build();
-        void Reset();
-    private:
-        State * _startState;
-        std::unordered_set<State *> _acceptStates;
-        std::unordered_map<int, std::unique_ptr<State>> _states;
-};
-
-class Dfa::State{
-    public:
-        State(std::function<PToken(const char *, std::size_t)> action):
-        _action(action), _table{} {}
-
-        const std::unordered_map<char, State *> & Table() const{
-            return _table;
-        }
-        PToken Execute(const char * payload, std::size_t pos){
-            return _action(payload, pos);
-        }
-        friend Dfa::Builder & Dfa::Builder::AddStates();
-        friend Dfa::Builder & Dfa::Builder::LinkStates();       
-    private:
-        State(const State & rhs) = delete;
-        State & operator =(const State & rhs) = delete;
-        State(State && rhs) = default;
-        State & operator = (State && rhs) = default;
-        std::function<PToken(const char *, std::size_t)> _action;
-        std::unordered_map<char, State *> _table;
-};
-
-#endif
+}  // namespace dfa
+#endif  // SRCS_DFA_HPP_
