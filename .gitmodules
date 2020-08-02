@@ -1,0 +1,6 @@
+[submodule "libs/fruit"]
+	path = libs/fruit
+	url = ../../google/fruit.git
+	update = rebase
+	branch = master
+

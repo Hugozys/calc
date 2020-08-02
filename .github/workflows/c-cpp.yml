@@ -4,23 +4,24 @@ jobs:
   build_calc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v1
-      - name: Install Depdendencies
-        run: |
-          echo 'deb http://download.opensuse.org/repositories/home:/poletti_marco/xUbuntu_20.04/ /' | sudo tee /etc/apt/sources.list.d/home:poletti_marco.list
-          curl -fsSL https://download.opensuse.org/repositories/home:poletti_marco/xUbuntu_20.04/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/home:poletti_marco.gpg > /dev/null
-          sudo apt update
-          sudo apt install libfruit
-      - uses: actions/checkout@v2
-
+      - name: Install python dependencies
+        uses: actions/setup-python@v1
+      - name: Get latest cmake
+        uses: lukka/get-cmake@latest
+      - name: Checkout source code
+        uses: actions/checkout@v2
       - name: Linter check
         run: |
           pip install cpplint
           cpplint --filter=-legal/copyright,-runtime/references --linelength=120 --recursive .
       - name: Build
         run: |
+          mkdir build
+          cd build
+          cmake .. -DFRUIT_USES_BOOST=False
           make
+          cd ..
       - name: Test Token
-        run: ./testToken
+        run: ./bin/testToken
       - name: Test Parser
-        run: ./testParser
+        run: ./bin/testParser

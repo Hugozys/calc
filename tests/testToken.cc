@@ -5,8 +5,8 @@
 #include <string>
 #include <unordered_map>
 
-#include "token.hpp"
-#include "tokengen.hpp"
+#include "srcs/token.hpp"
+#include "srcs/tokengen.hpp"
 using fruit::Injector;
 
 std::string print(std::queue<PToken> &list) {
