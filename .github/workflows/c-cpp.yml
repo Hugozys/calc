@@ -13,7 +13,7 @@ jobs:
       - name: Linter check
         run: |
           pip install cpplint
-          cpplint --filter=-legal/copyright,-runtime/references --linelength=120 --recursive .
+          cpplint --filter=-legal/copyright,-runtime/references --exclude=srcs/libs --linelength=120 --recursive .
       - name: Build
         run: |
           mkdir build
