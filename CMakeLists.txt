@@ -79,6 +79,7 @@ if(CLANG_TIDY)
     COMMAND ${CLANG_TIDY}
     ${ALL_CXX_SOURCE_FILES}
     --header-filter=.*
+    --warnings-as-errors=*
     --
     --std=c++17
     ${INCLUDE_HEADER_DIR}

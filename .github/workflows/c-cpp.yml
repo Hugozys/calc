@@ -6,6 +6,8 @@ jobs:
     steps:
       - name: Install python dependencies
         uses: actions/setup-python@v1
+      - name: Install clang dependencies
+        run: sudo apt install clang-tidy -y
       - name: Get latest cmake
         uses: lukka/get-cmake@latest
       - name: Checkout source code
@@ -19,6 +21,7 @@ jobs:
           mkdir build
           cd build
           cmake .. -DFRUIT_USES_BOOST=False
+          make tidy
           make
           cd ..
       - name: Test Token
