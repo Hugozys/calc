@@ -162,7 +162,6 @@ class Parser::OpExp : public Exp {
  protected:
   OpExp(std::size_t pos, std::initializer_list<std::shared_ptr<Exp>> list)
       : Exp{ExpType::OP, pos}, _children{list} {}
-  OpExp() = default;
 
  private:
   using ExpIt = std::vector<std::shared_ptr<Exp>>::iterator;
